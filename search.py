@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -87,17 +89,79 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Stack()  # setting up the stack for holding states
+    if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
+        return []
+    states_visited = []  # defining a list to avoid expanding states that have been expanded
+    final_path = []  # defining a list to be returned at the end of the function
+    current_state = problem.getStartState()  # initializing current state
+    current_path = util.Stack()  # defining a stack holding all actions until the current state
+
+    while not problem.isGoalState(current_state):  # while we have not reached the goal
+        if current_state not in states_visited:  # if we have not already visited the current state (loc + direction)
+            states_visited.append(current_state)  # add current state to visited states
+            successors = problem.getSuccessors(current_state)
+            for successor in successors:
+                fringe.push(successor[0])  # successor[0] is the next state
+                partial_path = final_path + [successor[1]]  # successor[1] is the possible action in this state
+                current_path.push(partial_path)  # adding expansion of current state to the path so far
+        current_state = fringe.pop()  # setting current state to expand the next viable successor
+        final_path = current_path.pop()  # adding path to current state to our final return path
+    return final_path
+    # util.raiseNotDefined()
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Queue()  # setting up the queue for holding states
+    if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
+        return []
+    states_visited = []  # defining a list to avoid expanding states that have been expanded
+    final_path = []  # defining a list to be returned at the end of the function
+    current_state = problem.getStartState()  # initializing current state
+    current_path = util.Queue()  # defining a queue holding all actions until the current state
+
+    while not problem.isGoalState(current_state):  # while we have not reached the goal
+        if current_state not in states_visited:  # if we have not already visited the current state (loc + direction)
+            states_visited.append(current_state)  # add current state to visited states
+            successors = problem.getSuccessors(current_state)
+            for successor in successors:
+                fringe.push(successor[0])  # successor[0] is the next state
+                partial_path = final_path + [successor[1]]  # successor[1] is the possible action in this state
+                current_path.push(partial_path)  # adding expansion of current state to the path so far
+        current_state = fringe.pop()  # setting current state to expand the next viable successor
+        final_path = current_path.pop()  # adding path to current state to our final return path
+    return final_path
+    # util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()  # setting up the priority queue for holding states and their costs
+    if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
+        return []
+    states_visited = []  # defining a list to avoid expanding states that have been expanded
+    final_path = []  # defining a list to be returned at the end of the function
+    current_state = problem.getStartState()  # initializing current state
+    current_path = util.PriorityQueue()  # defining a priority queue holding actions with their costs
+
+    while not problem.isGoalState(current_state):  # while we have not reached the goal
+        if current_state not in states_visited:  # if we have not already visited the current state (loc + direction)
+            states_visited.append(current_state)  # add current state to visited states
+            successors = problem.getSuccessors(current_state)
+            for successor in successors:
+                partial_path = final_path + [successor[1]]  # successor[1] is the possible action in this state
+                remaining_cost = problem.getCostOfActions(partial_path)  # used as priority value for fringe/path
+                if successor[0] not in states_visited:  # if the child has not been visited
+                    fringe.push(successor[0], remaining_cost)  # successor[0] is the next state
+                    current_path.push(partial_path, remaining_cost)  # adding expansion of current state to path
+        current_state = fringe.pop()  # setting current state to expand the next viable successor
+        final_path = current_path.pop()  # adding path to current state to our final return path
+    return final_path
+    # util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -106,10 +170,32 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()  # setting up the priority queue for holding states and their costs
+    if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
+        return []
+    states_visited = []  # defining a list to avoid expanding states that have been expanded
+    final_path = []  # defining a list to be returned at the end of the function
+    current_state = problem.getStartState()  # initializing current state
+    current_path = util.PriorityQueue()  # defining a priority queue holding actions with their costs
+
+    while not problem.isGoalState(current_state):  # while we have not reached the goal
+        if current_state not in states_visited:  # if we have not already visited the current state (loc + direction)
+            states_visited.append(current_state)  # add current state to visited states
+            successors = problem.getSuccessors(current_state)
+            for successor in successors:
+                partial_path = final_path + [successor[1]]  # successor[1] is the possible action in this state
+                remaining_cost = problem.getCostOfActions(partial_path) + heuristic(successor[0], problem)  # used as priority value for fringe/path
+                if successor[0] not in states_visited:  # if the child has not been visited
+                    fringe.push(successor[0], remaining_cost)  # successor[0] is the next state
+                    current_path.push(partial_path, remaining_cost)  # adding expansion of current state to path
+        current_state = fringe.pop()  # setting current state to expand the next viable successor
+        final_path = current_path.pop()  # adding path to current state to our final return path
+    return final_path
+    # util.raiseNotDefined()
 
 
 # Abbreviations
