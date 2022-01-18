@@ -89,7 +89,7 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    fringe = util.Stack()  # setting up the stack for holding states
+    fringe = util.Stack()  # setting up the stack for holding states (Depth-First-Search uses stack)
     if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
         return []
     states_visited = []  # defining a list to avoid expanding states that have been expanded
@@ -114,7 +114,7 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    fringe = util.Queue()  # setting up the queue for holding states
+    fringe = util.Queue()  # setting up the queue for holding states (Breadth-First-Search uses queue)
     if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
         return []
     states_visited = []  # defining a list to avoid expanding states that have been expanded
@@ -138,7 +138,7 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    "*** YOUR CODE HERE ***"  # Uniform-Cost-Search uses priority queue
     fringe = util.PriorityQueue()  # setting up the priority queue for holding states and their costs
     if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
         return []
@@ -173,7 +173,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    "*** YOUR CODE HERE ***"  # A* search is identical to UCS, except added cost checking based on heuristic
     fringe = util.PriorityQueue()  # setting up the priority queue for holding states and their costs
     if problem.isGoalState(problem.getStartState()):  # base case of goal state matching start state
         return []
@@ -188,7 +188,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             successors = problem.getSuccessors(current_state)
             for successor in successors:
                 partial_path = final_path + [successor[1]]  # successor[1] is the possible action in this state
-                remaining_cost = problem.getCostOfActions(partial_path) + heuristic(successor[0], problem)  # used as priority value for fringe/path
+                remaining_cost = problem.getCostOfActions(partial_path) + heuristic(successor[0], problem)
                 if successor[0] not in states_visited:  # if the child has not been visited
                     fringe.push(successor[0], remaining_cost)  # successor[0] is the next state
                     current_path.push(partial_path, remaining_cost)  # adding expansion of current state to path

@@ -295,14 +295,21 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        state = (self.startingPosition, (0, 1, 2, 3))  # state comprised of x,y position and list of remaining corners
+        return state
+
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        corners_remaining = state[1]  # gets remaining corners from state
+        if len(corners_remaining) != 0:  # if remaining corners list is not empty, goal has not been reached
+            return False
+        else:  # if remaining corners list is empty, goal has been reached
+            return True
+
 
     def getSuccessors(self, state):
         """
@@ -325,7 +332,29 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = state[0]  # getting x and y positions from state
+            dx, dy = Actions.directionToVector(action)  # getting directions to next state
+            next_x, next_y = int(x + dx), int(y + dy)  # adding curr position to direction to get next position
+            hits_wall = self.walls[next_x][next_y]  # boolean defining if the next position is in a wall
 
+            if not hits_wall:  # if next position is not in a wall
+                corners_remaining = state[1]  # get tuple of remaining corners from state
+                in_corner = False  # default that next position is not a corner
+
+                counter = 0  # index counter for self.corners
+                for corner in self.corners:  # for each corner
+                    if corner == (next_x, next_y):  # if the next position is a corner
+                        in_corner = True  # change boolean to indicate that we have reached a corner
+                        break
+                    counter += 1  # increment index counter if corner not reached
+
+                if in_corner:  # if a corner is reached
+                    if counter in corners_remaining:  # if the relevant corner is in our tuple of remaining corners
+                        updated_corners = list(corners_remaining)
+                        updated_corners.remove(counter)  # remove a corner from remaining corners tuple
+                        corners_remaining = tuple(updated_corners)
+                next_state = ((next_x, next_y), corners_remaining)  # create next state with possibly updated corners
+                successors.append((next_state, action, 1))  # append next state to successors
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -360,7 +389,18 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+
+    current_position = state[0]  # getting current state position
+    remaining_corners = state[1]  # getting tuple of remaining corners
+
+    if len(remaining_corners) == 0:  # if all corners have been reached, heuristic should be 0
+        return 0
+
+    final_heuristic = [0]  # initialize heuristic list with 0
+    for i in remaining_corners:  # for each remaining corner
+        final_heuristic.append(util.manhattanDistance(current_position, corners[i]))  # add the manhattan distance
+    return max(final_heuristic)  # return max of all manhattan distances to corners
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -454,7 +494,14 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    food_list = foodGrid.asList()
+    if len(food_list) == 0:  # if food_list is empty, heuristic should be 0
+        return 0
+
+    final_heuristic = [0]  # initialize heuristic list with 0
+    for i in food_list:  # for each remaining corner
+        final_heuristic.append(util.manhattanDistance(position, i))  # add the manhattan distance
+    return max(final_heuristic)  # return max of all manhattan distances to corners
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -485,7 +532,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)  # calling breadth-first-search where the goal is the closest dot
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +568,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        food_list = self.food.asList()  # similarly to food heuristic, convert food grid to a list
+        return state in food_list  # return the state
 
 def mazeDistance(point1, point2, gameState):
     """
